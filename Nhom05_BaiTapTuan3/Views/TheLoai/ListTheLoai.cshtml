@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Nhom05_BaiTapTuan3.Models.TheLoai>
+
+@{
+    ViewBag.Title = "ListTheLoai";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>DANH SÁCH THỂ LOẠI</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.tenloai)
+        </th>
+        <th></th>
+    </tr>
+    @if (ViewBag.Message != null)
+    {
+        <tr>
+            <td colspan="7">
+                @ViewBag.Message
+            </td>
+        </tr>
+    }
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.tenloai)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.maloai }) |
+                    @Html.ActionLink("Detail", "Detail", new { id = item.maloai }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.maloai })
+                </td>
+            </tr>
+        }
+
+    </table>
+

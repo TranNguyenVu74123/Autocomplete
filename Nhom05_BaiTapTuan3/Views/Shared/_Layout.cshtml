@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <!-- Ensure jQuery is loaded first -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <!-- Then load jQuery UI -->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <style>
+        .search-container {
+            position: relative;
+        }
+
+        .searchInput {
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            margin-right: 10px;
+            width: 300px;
+        }
+
+
+
+        .ui-autocomplete {
+            position: absolute;
+            z-index: 1000;
+            width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+            .ui-autocomplete li {
+                padding: 8px 12px;
+                cursor: pointer;
+            }
+
+                .ui-autocomplete li:hover {
+                    background-color: #f2f2f2;
+                }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
+        <div class="container">
+            @Html.ActionLink("HUTECH SÁCH", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav flex-grow-1">
+                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Thể Loại", "ListTheLoai", "TheLoai", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li>@Html.ActionLink("Sách", "ListSach", "Sach", new { area = "" }, new { @class = "nav-link" })</li>
+                </ul>
+                <div class="search-container">
+                    <input id="searchInput" class="searchInput" type="text" placeholder="Search...">
+                    <button id="searchButton" type="button" style="padding: 8px 12px; border: none; border-radius: 10px; background-color: #20B2AA; color: white;">Search</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+
+<script>
+  $(document).ready(function () {
+    var autocompleteUrl = ''; // Biến để lưu URL autocomplete
+
+    // Kiểm tra URL hiện tại và gán URL autocomplete tương ứng
+    var currentPage = window.location.pathname;
+    if (currentPage.includes("/TheLoai")) {
+        autocompleteUrl = '@Url.Action("SearchAutocomplete", "TheLoai")'; // Nếu đang ở trang Thể loại
+    } else {
+        autocompleteUrl = '@Url.Action("SearchAutocomplete", "Sach")'; // Nếu đang ở trang Sách
+    }
+
+    // Kích hoạt autocomplete cho ô tìm kiếm
+    $('.searchInput').autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                url: autocompleteUrl, // Sử dụng URL autocomplete tương ứng
+                dataType: 'json',
+                data: {
+                    term: request.term
+                },
+                success: function (data) {
+                    // Tìm kiếm dựa trên dữ liệu trả về từ server
+                    var searchTerm = request.term.toLowerCase(); // Chuyển đổi từ khóa tìm kiếm thành chữ thường
+                    var filteredData = $.grep(data, function (item) {
+                        // Kiểm tra xem từ khóa tìm kiếm có tồn tại trong tên sách hay không
+                        var itemName = item.toLowerCase();
+                        return itemName.indexOf(searchTerm) !== -1;
+                    });
+                    response(filteredData);
+                },
+                error: function () {
+                    response([]);
+                }
+            });
+        },
+        minLength: 1
+    });
+
+    // Xử lý sự kiện khi nhấn nút tìm kiếm
+    $('#searchButton').click(function () {
+        var keyword = $('#searchInput').val().trim();
+        if (keyword !== '') {
+            if (currentPage.includes("/TheLoai")) {
+                window.location.href = '/TheLoai/Search?keyword=' + keyword; // Tìm kiếm theo Thể loại
+            } else {
+                window.location.href = '/Sach/Search?keyword=' + keyword; // Tìm kiếm sách
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
